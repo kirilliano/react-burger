@@ -1,0 +1,50 @@
+.header {
+  background: #1c1c21;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  max-width: 1280px;
+  padding: 16px;
+  position: relative;
+  width: 100%;
+}
+
+.leftBlock {
+  box-sizing: border-box;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.logoBlock {
+  left: 0;
+  margin-left: auto;
+  margin-right: auto;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: 16px;
+}
+
+.button {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 16px 20px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logo {
+  width: 289px;
+}
