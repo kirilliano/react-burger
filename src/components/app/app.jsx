@@ -5,34 +5,3 @@ import BurgerConstructor from '../burger-constructor/burger-constructor';
 import style from './app.module.css';
 
 const URL = 'https://norma.nomoreparties.space/api/ingredients';
-
-function App() {
-  const [ingredients, setIngredients] = React.useState([]);
-
-  React.useEffect(() => {
-    async function getData() {
-      return await fetch(URL)
-        .then((res) => {
-          if (res.ok) {
-            return res.json();
-          }
-          return Promise.reject(`Ошибка ${res.status}`);
-        })
-        .then((data) => setIngredients(data.data))
-        .catch((error) => console.log(error));
-    }
-    getData();
-  }, []);
-
-  return (
-    <>
-      <AppHeader />
-      <main className={style.main}>
-        <BurgerIngredients ingredients={ingredients} />
-        <BurgerConstructor ingredients={ingredients} />
-      </main>
-    </>
-  );
-}
-
-export default App;
