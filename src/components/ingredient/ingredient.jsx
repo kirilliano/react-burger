@@ -10,7 +10,7 @@ function Ingredient(props) {
         <p className="text text_type_digits-default">{props.price}</p>
         <CurrencyIcon type="primary" />
       </div>
-      <p className={`${styleIngredient.ingredientTitle} ${'text text_type_main-default pb-8'}`}>
+      <p className={`${styleIngredient.title} ${'text text_type_main-default pb-8'}`}>
         {props.name}
       </p>
     </li>
