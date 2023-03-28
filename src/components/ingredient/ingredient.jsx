@@ -1,3 +1,20 @@
-import PropTypes from 'prop-types';
 import { CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
-import styles from './ingredient-element.module.css';
+import styleIngredient from '../ingredient/ingredient.module.css';
+
+function Ingredient(props) {
+  return (
+    <li className={styleIngredient.item}>
+      <Counter count={1} size="default" extraClass="m-1" />
+      <img src={props.image} alt={props.name} />
+      <div className={styleIngredient.price}>
+        <p className="text text_type_digits-default">{props.price}</p>
+        <CurrencyIcon type="primary" />
+      </div>
+      <p className={`${styleIngredient.ingredientTitle} ${'text text_type_main-default pb-8'}`}>
+        {props.name}
+      </p>
+    </li>
+  );
+}
+
+export default Ingredient;
