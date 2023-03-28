@@ -1,0 +1,27 @@
+.header {
+  background: #1c1c21;
+  margin: 0 auto;
+  padding: 0;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 1240px;
+  width: 100%;
+  padding: 16px;
+}
+
+.leftElements {
+  display: flex;
+  margin: 0;
+  gap: 8px;
+}
+
+.button {
+  display: flex;
+  gap: 8px;
+}
