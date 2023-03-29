@@ -11,7 +11,7 @@ function AppHeader() {
   return (
     <header className={styleHeader.header}>
       <section className={styleHeader.container}>
-        <div className={styleHeader.leftElements}>
+        <div className={styleHeader.beforeLogo}>
           <div className={`${styleHeader.button} ${'p-4'}`}>
             <BurgerIcon type="primary" />
             <p className="text text_type_main-default">Конструктор</p>
