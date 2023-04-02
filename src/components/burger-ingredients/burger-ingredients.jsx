@@ -5,9 +5,10 @@ import styleIngredients from './burger-ingredients.module.css';
 import IngredientsBlock from '../ingredients-block/ingredients-block';
 import Modal from '../modal/modal';
 import IngredientDetails from '../ingredient-details/ingredient-details';
+import { ingredientPropTypes } from '../../utils/prop-types';
 
-function BurgerIngredients(props) {
-  const [current, setCurrent] = React.useState('');
+function BurgerIngredients({ ingredients }) {
+  const [current, setCurrent] = React.useState('bun');
   const [currentIngredient, setCurrentIngredient] = React.useState(null);
   const [isModalOpened, setIsModalOpened] = React.useState(false);
 
@@ -38,19 +39,19 @@ function BurgerIngredients(props) {
       <div className={styleIngredients.components}>
         <IngredientsBlock
           title="Булки"
-          ingredients={props.ingredients}
+          ingredients={ingredients}
           type="bun"
           onClick={handleIngredientClick}
         />
         <IngredientsBlock
           title="Соусы"
-          ingredients={props.ingredients}
+          ingredients={ingredients}
           type="sauce"
           onClick={handleIngredientClick}
         />
         <IngredientsBlock
           title="Начинки"
-          ingredients={props.ingredients}
+          ingredients={ingredients}
           type="main"
           onClick={handleIngredientClick}
         />
@@ -65,15 +66,7 @@ function BurgerIngredients(props) {
 }
 
 BurgerIngredients.propTypes = {
-  ingredients: PropTypes.arrayOf(
-    PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      price: PropTypes.number.isRequired,
-      image: PropTypes.string.isRequired,
-      type: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
+  ingredients: PropTypes.arrayOf(ingredientPropTypes).isRequired,
 };
 
 export default BurgerIngredients;

@@ -4,3 +4,10 @@
   margin: 0 auto;
   max-width: 1240px;
 }
+
+.error {
+  color: white;
+  font-size: 48px;
+  font-weight: bold;
+  text-align: center;
+}

@@ -8,6 +8,7 @@ import {
 import styleConstructor from './burger-constructor.module.css';
 import Modal from '../modal/modal';
 import OrderDetails from '../order-details/order-detail';
+import { ingredientPropTypes } from '../../utils/prop-types';
 
 function BurgerConstructor({ ingredients }) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -90,14 +91,7 @@ function BurgerConstructor({ ingredients }) {
 }
 
 BurgerConstructor.propTypes = {
-  ingredients: PropTypes.arrayOf(
-    PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      price: PropTypes.number.isRequired,
-      image: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
+  ingredients: PropTypes.arrayOf(ingredientPropTypes).isRequired,
 };
 
 export default BurgerConstructor;

@@ -2,24 +2,24 @@ import React from 'react';
 import AppHeader from '../app-header/app-header';
 import BurgerIngredients from '../burger-ingredients/burger-ingredients';
 import BurgerConstructor from '../burger-constructor/burger-constructor';
+import { getIngredients } from '../../utils/burger-api';
 import style from './app.module.css';
 
 const URL = 'https://norma.nomoreparties.space/api/ingredients';
 
 function App() {
   const [ingredients, setIngredients] = React.useState([]);
+  const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
     async function fetchData() {
-      return await fetch(URL)
-        .then((res) => {
-          if (res.ok) {
-            return res.json();
-          }
-          return Promise.reject(`Ошибка ${res.status}`);
+      getIngredients()
+        .then((data) => {
+          setIngredients(data.data);
         })
-        .then((data) => setIngredients(data.data))
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          setError(err);
+        });
     }
     fetchData();
   }, []);
@@ -28,8 +28,14 @@ function App() {
     <>
       <AppHeader />
       <main className={style.main}>
-        <BurgerIngredients ingredients={ingredients} />
-        <BurgerConstructor ingredients={ingredients} />
+        {error ? (
+          <p className={style.error}>Произошла ошибка: {error}</p>
+        ) : (
+          <>
+            <BurgerIngredients ingredients={ingredients} />
+            <BurgerConstructor ingredients={ingredients} />
+          </>
+        )}
       </main>
     </>
   );

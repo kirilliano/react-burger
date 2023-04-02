@@ -1,18 +1,20 @@
+import PropTypes from 'prop-types';
 import Ingredient from '../ingredient/ingredient';
 import styleBlock from '../ingredients-block/ingredients-block.module.css';
+import { ingredientPropTypes } from '../../utils/prop-types';
 
-function IngredientsBlock(props) {
+function IngredientsBlock({ title, ingredients, type, onClick }) {
   return (
     <div>
-      <h2 className="text text_type_main-medium">{props.title}</h2>
+      <h2 className="text text_type_main-medium">{title}</h2>
       <ul className={styleBlock.block}>
-        {props.ingredients.map((ingredient) => {
-          if (ingredient.type === props.type) {
+        {ingredients.map((ingredient) => {
+          if (ingredient.type === type) {
             return (
               <Ingredient
                 key={ingredient._id}
                 {...ingredient}
-                onClick={() => props.onClick(ingredient)}
+                onClick={() => onClick(ingredient)}
               />
             );
           }
@@ -21,5 +23,12 @@ function IngredientsBlock(props) {
     </div>
   );
 }
+
+IngredientsBlock.propTypes = {
+  title: PropTypes.string.isRequired,
+  ingredients: PropTypes.arrayOf(ingredientPropTypes).isRequired,
+  type: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 
 export default IngredientsBlock;
