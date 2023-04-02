@@ -10,8 +10,8 @@ function ModalOverlay({ children, onClick }) {
 }
 
 ModalOverlay.propTypes = {
-  children: PropTypes.node.isRequired,
-  onClick: PropTypes.func,
+  children: PropTypes.node,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default ModalOverlay;
