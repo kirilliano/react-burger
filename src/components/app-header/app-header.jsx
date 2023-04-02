@@ -12,21 +12,26 @@ function AppHeader() {
     <header className={styleHeader.header}>
       <section className={styleHeader.container}>
         <div className={styleHeader.beforeLogo}>
-          <div className={`${styleHeader.button} ${'p-4'}`}>
+          <a href="#" className={`${styleHeader.button} ${'p-4'} ${styleHeader.link}`}>
             <BurgerIcon type="primary" />
             <p className="text text_type_main-default">Конструктор</p>
-          </div>
-          <div className={`${styleHeader.button} ${'p-4'}`}>
+          </a>
+          <a href="#" className={`${styleHeader.button} ${'p-4'} ${styleHeader.link}`}>
             <ListIcon type="secondary" />
             <p className="text text_type_main-default text_color_inactive">Лента заказов</p>
-          </div>
+          </a>
         </div>
-        <div className={styleHeader.logo}>
+        <a href="#" className={styleHeader.logo}>
           <Logo />
-        </div>
+        </a>
         <div className={`${styleHeader.button} ${'p-4'}`}>
           <ProfileIcon type="secondary" />
-          <p className="text text_type_main-default text_color_inactive">Личный кабинет</p>
+          <a
+            href="#"
+            className={`${'text text_type_main-default text_color_inactive'} ${styleHeader.link}`}
+          >
+            Личный кабинет
+          </a>
         </div>
       </section>
     </header>

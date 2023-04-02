@@ -26,3 +26,11 @@
   display: flex;
   gap: 8px;
 }
+
+.link {
+  text-decoration: none;
+}
+
+.link:first-child {
+  color: white;
+}
