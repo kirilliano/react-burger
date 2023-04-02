@@ -3,7 +3,7 @@ import styleIngredient from '../ingredient/ingredient.module.css';
 
 function Ingredient(props) {
   return (
-    <li className={styleIngredient.item}>
+    <li className={styleIngredient.item} onClick={props.onClick}>
       <Counter count={1} size="default" extraClass="m-1" />
       <img src={props.image} alt={props.name} />
       <div className={styleIngredient.price}>

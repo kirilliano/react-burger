@@ -3,9 +3,23 @@ import PropTypes from 'prop-types';
 import { Tab } from '@ya.praktikum/react-developer-burger-ui-components';
 import styleIngredients from './burger-ingredients.module.css';
 import IngredientsBlock from '../ingredients-block/ingredients-block';
+import Modal from '../modal/modal';
+import IngredientDetails from '../ingredient-details/ingredient-details';
 
 function BurgerIngredients(props) {
   const [current, setCurrent] = React.useState('');
+  const [currentIngredient, setCurrentIngredient] = React.useState(null);
+  const [isModalOpened, setIsModalOpened] = React.useState(false);
+
+  const handleIngredientClick = (ingredient) => {
+    setCurrentIngredient(ingredient);
+    setIsModalOpened(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpened(false);
+    setCurrentIngredient(null);
+  };
 
   return (
     <section className={styleIngredients.container}>
@@ -22,10 +36,30 @@ function BurgerIngredients(props) {
         </Tab>
       </div>
       <div className={styleIngredients.components}>
-        <IngredientsBlock title="Булки" ingredients={props.ingredients} type="bun" />
-        <IngredientsBlock title="Соусы" ingredients={props.ingredients} type="sauce" />
-        <IngredientsBlock title="Начинки" ingredients={props.ingredients} type="main" />
+        <IngredientsBlock
+          title="Булки"
+          ingredients={props.ingredients}
+          type="bun"
+          onClick={handleIngredientClick}
+        />
+        <IngredientsBlock
+          title="Соусы"
+          ingredients={props.ingredients}
+          type="sauce"
+          onClick={handleIngredientClick}
+        />
+        <IngredientsBlock
+          title="Начинки"
+          ingredients={props.ingredients}
+          type="main"
+          onClick={handleIngredientClick}
+        />
       </div>
+      {isModalOpened && (
+        <Modal onClose={closeModal}>
+          <IngredientDetails currentIngredient={currentIngredient} />
+        </Modal>
+      )}
     </section>
   );
 }

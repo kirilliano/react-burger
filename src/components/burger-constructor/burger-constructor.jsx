@@ -1,3 +1,4 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
   ConstructorElement,
@@ -5,13 +6,20 @@ import {
   CurrencyIcon,
 } from '@ya.praktikum/react-developer-burger-ui-components';
 import styleConstructor from './burger-constructor.module.css';
+import Modal from '../modal/modal';
+import OrderDetails from '../order-details/order-detail';
 
 function BurgerConstructor({ ingredients }) {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+
+  const handleOrderClick = () => {
+    setIsModalOpen(true);
+  };
   return (
     <section className={styleConstructor.list}>
       <div className={styleConstructor.blockedIngredient}>
         {ingredients.map((ingredient, index) => {
-          // Заблокировать верхний ингредиент
+          // Верхний ингредиент
           if (index === 0) {
             return (
               <ConstructorElement
@@ -46,7 +54,7 @@ function BurgerConstructor({ ingredients }) {
 
       <div className={styleConstructor.blockedIngredient}>
         {ingredients.map((ingredient, index) => {
-          // Заблокировать нижний ингредиент
+          // Нижний ингредиент
           if (index === ingredients.length - 1) {
             return (
               <ConstructorElement
@@ -67,10 +75,16 @@ function BurgerConstructor({ ingredients }) {
           <p className="text text_type_digits-medium">610</p>
           <CurrencyIcon type="primary" />
         </div>
-        <Button htmlType="button" type="primary" size="large">
+        <Button htmlType="button" type="primary" size="large" onClick={handleOrderClick}>
           Оформить заказ
         </Button>
       </div>
+
+      {isModalOpen && (
+        <Modal onClose={() => setIsModalOpen(false)}>
+          <OrderDetails />
+        </Modal>
+      )}
     </section>
   );
 }

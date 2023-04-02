@@ -8,7 +8,13 @@ function IngredientsBlock(props) {
       <ul className={styleBlock.block}>
         {props.ingredients.map((ingredient) => {
           if (ingredient.type === props.type) {
-            return <Ingredient key={ingredient._id} {...ingredient} />;
+            return (
+              <Ingredient
+                key={ingredient._id}
+                {...ingredient}
+                onClick={() => props.onClick(ingredient)}
+              />
+            );
           }
         })}
       </ul>
