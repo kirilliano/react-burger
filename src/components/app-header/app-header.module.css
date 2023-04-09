@@ -1,0 +1,36 @@
+.header {
+  background: #1c1c21;
+  margin: 0 auto;
+  padding: 0;
+  width: 100%;
+}
+
+.container {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  max-width: 1280px;
+  padding: 16px;
+  width: 100%;
+}
+
+.beforeLogo {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.button {
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.link:first-child {
+  color: white;
+}
