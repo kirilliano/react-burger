@@ -5,8 +5,6 @@ import BurgerConstructor from '../burger-constructor/burger-constructor';
 import { getIngredients } from '../../utils/burger-api';
 import style from './app.module.css';
 
-const URL = 'https://norma.nomoreparties.space/api/ingredients';
-
 function App() {
   const [ingredients, setIngredients] = React.useState([]);
   const [error, setError] = React.useState(null);
