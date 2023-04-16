@@ -6,13 +6,16 @@ import IngredientsBlock from '../ingredients-block/ingredients-block';
 import Modal from '../modal/modal';
 import IngredientDetails from '../ingredient-details/ingredient-details';
 import { ingredientPropTypes } from '../../utils/prop-types';
+import { ConstructorContext } from '../../services/constructorContext.js';
 
 function BurgerIngredients({ ingredients }) {
   const [current, setCurrent] = React.useState('bun');
   const [currentIngredient, setCurrentIngredient] = React.useState(null);
   const [isModalOpened, setIsModalOpened] = React.useState(false);
+  const { addIngredient } = React.useContext(ConstructorContext);
 
   const handleIngredientClick = (ingredient) => {
+    addIngredient(ingredient);
     setCurrentIngredient(ingredient);
     setIsModalOpened(true);
   };
