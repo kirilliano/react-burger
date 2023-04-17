@@ -12,6 +12,22 @@ function App() {
   const [constructorIngredients, setConstructorIngredients] = React.useState([]);
   const [orderNumber, setOrderNumber] = React.useState(null);
 
+  const addIngredient = (ingredient) => {
+    setConstructorIngredients((prevIngredients) => [...prevIngredients, ingredient]);
+  };
+
+  const contextValue = React.useMemo(
+    () => ({
+      ingredients,
+      constructorIngredients,
+      setConstructorIngredients,
+      addIngredient,
+      orderNumber,
+      setOrderNumber,
+    }),
+    [ingredients, constructorIngredients, addIngredient, orderNumber],
+  );
+
   React.useEffect(() => {
     async function fetchData() {
       getIngredients()
@@ -25,10 +41,6 @@ function App() {
     fetchData();
   }, []);
 
-  const addIngredient = (ingredient) => {
-    setConstructorIngredients((prevIngredients) => [...prevIngredients, ingredient]);
-  };
-
   return (
     <>
       <AppHeader />
@@ -36,17 +48,9 @@ function App() {
         {error ? (
           <p className={style.error}>Произошла ошибка: {error}</p>
         ) : (
-          <ConstructorContext.Provider
-            value={{
-              constructorIngredients,
-              setConstructorIngredients,
-              addIngredient,
-              orderNumber,
-              setOrderNumber,
-            }}
-          >
-            <BurgerIngredients ingredients={ingredients} />
-            <BurgerConstructor ingredients={constructorIngredients} />
+          <ConstructorContext.Provider value={contextValue}>
+            <BurgerIngredients />
+            <BurgerConstructor />
           </ConstructorContext.Provider>
         )}
       </main>

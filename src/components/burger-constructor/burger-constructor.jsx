@@ -9,6 +9,7 @@ import Modal from '../modal/modal';
 import OrderDetails from '../order-details/order-detail';
 import { ConstructorContext } from '../../services/constructorContext.js';
 import burgerReducer from '../../services/burgerReducer.js';
+import controlApiResponse from '../../utils/burger-api.js';
 
 const initialState = {
   totalPrice: 0,
@@ -38,12 +39,7 @@ function BurgerConstructor() {
         ingredients: ingredientIds,
       }),
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-        return Promise.reject(`Что-то пошло не так: ${res.status}`);
-      })
+      .then(controlApiResponse)
       .then((data) => {
         if (data.success) {
           setIsModalOpen(true);
