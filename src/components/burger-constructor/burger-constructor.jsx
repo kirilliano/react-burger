@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   ConstructorElement,
   Button,
@@ -8,39 +7,77 @@ import {
 import styleConstructor from './burger-constructor.module.css';
 import Modal from '../modal/modal';
 import OrderDetails from '../order-details/order-detail';
-import { ingredientPropTypes } from '../../utils/prop-types';
+import { ConstructorContext } from '../../services/constructorContext.js';
+import burgerReducer from '../../services/burgerReducer.js';
+import controlApiResponse from '../../utils/burger-api.js';
 
-function BurgerConstructor({ ingredients }) {
+const initialState = {
+  totalPrice: 0,
+};
+
+function BurgerConstructor() {
+  const [state, dispatch] = React.useReducer(burgerReducer, initialState);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const { constructorIngredients, orderNumber, setOrderNumber } =
+    React.useContext(ConstructorContext);
+
+  const bun = constructorIngredients.find((ingredient) => ingredient.type === 'bun');
+
+  React.useEffect(() => {
+    dispatch({ type: 'CALC_TOTAL_PRICE', constructorIngredients });
+  }, [constructorIngredients]);
+
+  function submitOrder() {
+    const ingredientIds = constructorIngredients.map((ingredient) => ingredient._id);
+
+    fetch('https://norma.nomoreparties.space/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ingredients: ingredientIds,
+      }),
+    })
+      .then(controlApiResponse)
+      .then((data) => {
+        if (data.success) {
+          setIsModalOpen(true);
+          setOrderNumber(data.order.number);
+        } else {
+          console.log('Что-то пошло не так');
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   const handleOrderClick = () => {
-    setIsModalOpen(true);
+    submitOrder();
   };
+
   return (
     <section className={styleConstructor.list}>
-      <div className={styleConstructor.blockedIngredient}>
-        {ingredients.map((ingredient, index) => {
-          // Верхний ингредиент
-          if (index === 0) {
-            return (
-              <ConstructorElement
-                key={ingredient._id}
-                type="top"
-                isLocked={true}
-                text={`${ingredient.name} (верх)`}
-                price={ingredient.price}
-                thumbnail={ingredient.image}
-              />
-            );
-          }
-        })}
-      </div>
+      {constructorIngredients.length === 0 ? <p>Ваш заказ пуст</p> : null}
+      {bun && (
+        <div className={styleConstructor.blockedIngredient}>
+          <ConstructorElement
+            key={bun._id}
+            type="top"
+            isLocked={true}
+            text={`${bun.name} (верх)`}
+            price={bun.price}
+            thumbnail={bun.image}
+          />
+        </div>
+      )}
 
       <ul className={styleConstructor.includedIngredients}>
-        {ingredients.map((ingredient, index) => {
-          if (index !== 0 && index !== ingredients.length - 1) {
+        {constructorIngredients.map((ingredient, index) => {
+          if (ingredient.type !== 'bun') {
             return (
-              <li key={ingredient._id} className={styleConstructor.item}>
+              <li key={`${ingredient._id}-${index}`} className={styleConstructor.item}>
                 <div className={styleConstructor.dots}></div>
                 <ConstructorElement
                   text={ingredient.name}
@@ -50,30 +87,26 @@ function BurgerConstructor({ ingredients }) {
               </li>
             );
           }
+          return null;
         })}
       </ul>
 
-      <div className={styleConstructor.blockedIngredient}>
-        {ingredients.map((ingredient, index) => {
-          // Нижний ингредиент
-          if (index === ingredients.length - 1) {
-            return (
-              <ConstructorElement
-                key={ingredient._id}
-                type="bottom"
-                isLocked={true}
-                text={`${ingredient.name} (низ)`}
-                price={ingredient.price}
-                thumbnail={ingredient.image}
-              />
-            );
-          }
-        })}
-      </div>
+      {bun && (
+        <div className={styleConstructor.blockedIngredient}>
+          <ConstructorElement
+            key={`${bun._id}-bottom`}
+            type="bottom"
+            isLocked={true}
+            text={`${bun.name} (низ)`}
+            price={bun.price}
+            thumbnail={bun.image}
+          />
+        </div>
+      )}
 
       <div className={styleConstructor.summary}>
         <div className={styleConstructor.value}>
-          <p className="text text_type_digits-medium">610</p>
+          <p className="text text_type_digits-medium">{state.totalPrice}</p>
           <CurrencyIcon type="primary" />
         </div>
         <Button htmlType="button" type="primary" size="large" onClick={handleOrderClick}>
@@ -83,15 +116,11 @@ function BurgerConstructor({ ingredients }) {
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
-          <OrderDetails />
+          <OrderDetails orderNumber={orderNumber} />
         </Modal>
       )}
     </section>
   );
 }
-
-BurgerConstructor.propTypes = {
-  ingredients: PropTypes.arrayOf(ingredientPropTypes).isRequired,
-};
 
 export default BurgerConstructor;
