@@ -1,39 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Tab } from '@ya.praktikum/react-developer-burger-ui-components';
 import styleIngredients from './burger-ingredients.module.css';
 import IngredientsBlock from '../ingredients-block/ingredients-block';
 import Modal from '../modal/modal';
 import IngredientDetails from '../ingredient-details/ingredient-details';
-import { ConstructorContext } from '../../services/constructorContext.js';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectIngredients, addIngredient } from '../../services/ingredientsSlice';
+import {
+  setCurrentIngredient,
+  closeModal,
+  selectCurrentIngredient,
+  selectIsModalOpened,
+} from '../../services/ingredientDetailsSlice';
 
 function BurgerIngredients() {
-  const [current, setCurrent] = React.useState('bun');
-  const [currentIngredient, setCurrentIngredient] = React.useState(null);
-  const [isModalOpened, setIsModalOpened] = React.useState(false);
-  const { ingredients, addIngredient } = React.useContext(ConstructorContext);
+  const dispatch = useDispatch();
+  const ingredients = useSelector(selectIngredients);
+  const currentIngredient = useSelector(selectCurrentIngredient);
+  const isModalOpened = useSelector(selectIsModalOpened);
+  const [current, setCurrent] = useState('bun');
 
   const handleIngredientClick = (ingredient) => {
-    addIngredient(ingredient);
-    setCurrentIngredient(ingredient);
-    setIsModalOpened(true);
+    dispatch(addIngredient(ingredient));
+    dispatch(setCurrentIngredient(ingredient));
+    dispatch(closeModal(true));
   };
 
-  const closeModal = () => {
-    setIsModalOpened(false);
-    setCurrentIngredient(null);
+  const handleCloseModal = () => {
+    dispatch(closeModal(false));
+    dispatch(setCurrentIngredient(null));
   };
 
   return (
     <section className={styleIngredients.container}>
       <h1 className="text text_type_main-large pt-10 pb-5">Соберите бургер</h1>
       <div className={styleIngredients.tabs}>
-        <Tab value="bun" active={current === 'bun'} onClick={setCurrent}>
+        <Tab value="bun" active={current === 'bun'} onClick={() => setCurrent('bun')}>
           Булки
         </Tab>
-        <Tab value="sauce" active={current === 'sauce'} onClick={setCurrent}>
+        <Tab value="sauce" active={current === 'sauce'} onClick={() => setCurrent('sauce')}>
           Соусы
         </Tab>
-        <Tab value="main" active={current === 'main'} onClick={setCurrent}>
+        <Tab value="main" active={current === 'main'} onClick={() => setCurrent('main')}>
           Начинки
         </Tab>
       </div>
@@ -58,7 +66,7 @@ function BurgerIngredients() {
         />
       </div>
       {isModalOpened && (
-        <Modal onClose={closeModal}>
+        <Modal onClose={handleCloseModal}>
           <IngredientDetails currentIngredient={currentIngredient} />
         </Modal>
       )}

@@ -6,29 +6,19 @@ import {
 } from '@ya.praktikum/react-developer-burger-ui-components';
 import styleConstructor from './burger-constructor.module.css';
 import Modal from '../modal/modal';
-import OrderDetails from '../order-details/order-detail';
-import { ConstructorContext } from '../../services/constructorContext.js';
-import burgerReducer from '../../services/burgerReducer.js';
-import controlApiResponse from '../../utils/burger-api.js';
-
-const initialState = {
-  totalPrice: 0,
-};
+import OrderDetails from '../order-details/order-details';
+import { ConstructorContext } from '../../services/constructorContext';
+import { calcTotalPrice } from '../../services/burgerSlice';
+import { useSelector } from 'react-redux';
 
 function BurgerConstructor() {
-  const [state, dispatch] = React.useReducer(burgerReducer, initialState);
+  const { bun, ingredients } = useSelector((state) => state.burger);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const { constructorIngredients, orderNumber, setOrderNumber } =
-    React.useContext(ConstructorContext);
-
-  const bun = constructorIngredients.find((ingredient) => ingredient.type === 'bun');
-
-  React.useEffect(() => {
-    dispatch({ type: 'CALC_TOTAL_PRICE', constructorIngredients });
-  }, [constructorIngredients]);
+  const { orderNumber, setOrderNumber } = React.useContext(ConstructorContext);
+  const totalPrice = useSelector(calcTotalPrice);
 
   function submitOrder() {
-    const ingredientIds = constructorIngredients.map((ingredient) => ingredient._id);
+    const ingredientIds = ingredients.map((ingredient) => ingredient._id);
 
     fetch('https://norma.nomoreparties.space/api/orders', {
       method: 'POST',
@@ -37,9 +27,10 @@ function BurgerConstructor() {
       },
       body: JSON.stringify({
         ingredients: ingredientIds,
+        bun: bun._id,
       }),
     })
-      .then(controlApiResponse)
+      .then((response) => response.json())
       .then((data) => {
         if (data.success) {
           setIsModalOpen(true);
@@ -59,7 +50,6 @@ function BurgerConstructor() {
 
   return (
     <section className={styleConstructor.list}>
-      {constructorIngredients.length === 0 ? <p>Ваш заказ пуст</p> : null}
       {bun && (
         <div className={styleConstructor.blockedIngredient}>
           <ConstructorElement
@@ -74,7 +64,7 @@ function BurgerConstructor() {
       )}
 
       <ul className={styleConstructor.includedIngredients}>
-        {constructorIngredients.map((ingredient, index) => {
+        {ingredients.map((ingredient, index) => {
           if (ingredient.type !== 'bun') {
             return (
               <li key={`${ingredient._id}-${index}`} className={styleConstructor.item}>
@@ -106,7 +96,7 @@ function BurgerConstructor() {
 
       <div className={styleConstructor.summary}>
         <div className={styleConstructor.value}>
-          <p className="text text_type_digits-medium">{state.totalPrice}</p>
+          <p className="text text_type_digits-medium">{totalPrice}</p>
           <CurrencyIcon type="primary" />
         </div>
         <Button htmlType="button" type="primary" size="large" onClick={handleOrderClick}>

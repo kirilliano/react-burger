@@ -1,34 +1,30 @@
-import PropTypes from 'prop-types';
 import Ingredient from '../ingredient/ingredient';
 import styleBlock from '../ingredients-block/ingredients-block.module.css';
-import { ingredientPropTypes } from '../../utils/prop-types';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectIngredientsByType, addIngredient } from '../../services/ingredientsSlice';
 
-function IngredientsBlock({ title, ingredients, type, onClick }) {
+function IngredientsBlock({ title, type }) {
+  const dispatch = useDispatch();
+  const ingredients = useSelector(selectIngredientsByType(type));
+
+  const handleIngredientClick = (ingredient) => {
+    dispatch(addIngredient(ingredient));
+  };
+
   return (
     <div>
       <h2 className="text text_type_main-medium">{title}</h2>
       <ul className={styleBlock.block}>
-        {ingredients.map((ingredient) => {
-          if (ingredient.type === type) {
-            return (
-              <Ingredient
-                key={ingredient._id}
-                {...ingredient}
-                onClick={() => onClick(ingredient)}
-              />
-            );
-          }
-        })}
+        {ingredients.map((ingredient) => (
+          <Ingredient
+            key={ingredient._id}
+            {...ingredient}
+            onClick={() => handleIngredientClick(ingredient)}
+          />
+        ))}
       </ul>
     </div>
   );
 }
-
-IngredientsBlock.propTypes = {
-  title: PropTypes.string.isRequired,
-  ingredients: PropTypes.arrayOf(ingredientPropTypes).isRequired,
-  type: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
-};
 
 export default IngredientsBlock;
