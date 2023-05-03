@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Tab } from '@ya.praktikum/react-developer-burger-ui-components';
 import styleIngredients from './burger-ingredients.module.css';
 import IngredientsBlock from '../ingredients-block/ingredients-block';
@@ -34,6 +34,39 @@ function BurgerIngredients() {
     dispatch(clearCurrentIngredient());
   };
 
+  const bunsRef = useRef(null);
+  const saucesRef = useRef(null);
+  const mainsRef = useRef(null);
+
+  const handleScroll = () => {
+    const bunsTop = bunsRef.current.getBoundingClientRect().top;
+    const saucesTop = saucesRef.current.getBoundingClientRect().top;
+    const mainsTop = mainsRef.current.getBoundingClientRect().top;
+
+    const containerBoundary = 250;
+
+    if (bunsTop <= containerBoundary && saucesTop > containerBoundary) {
+      setCurrent('bun');
+    } else if (saucesTop <= containerBoundary && mainsTop > containerBoundary) {
+      setCurrent('sauce');
+    } else if (mainsTop <= containerBoundary) {
+      setCurrent('main');
+    }
+  };
+
+  useEffect(() => {
+    const ingredientsContainer = document.querySelector('#ingredientsContainer');
+    if (ingredientsContainer) {
+      ingredientsContainer.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      if (ingredientsContainer) {
+        ingredientsContainer.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
+
   return (
     <section className={styleIngredients.container}>
       <h1 className="text text_type_main-large pt-10 pb-5">Соберите бургер</h1>
@@ -49,24 +82,27 @@ function BurgerIngredients() {
         </Tab>
       </div>
       {ingredients.length > 0 ? (
-        <div className={styleIngredients.components}>
+        <div id="ingredientsContainer" className={styleIngredients.components}>
           <IngredientsBlock
             title="Булки"
             ingredients={ingredients}
             type="bun"
             onClick={handleIngredientClick}
+            ref={bunsRef}
           />
           <IngredientsBlock
             title="Соусы"
             ingredients={ingredients}
             type="sauce"
             onClick={handleIngredientClick}
+            ref={saucesRef}
           />
           <IngredientsBlock
             title="Начинки"
             ingredients={ingredients}
             type="main"
             onClick={handleIngredientClick}
+            ref={mainsRef}
           />
         </div>
       ) : (
