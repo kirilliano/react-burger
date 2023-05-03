@@ -14,11 +14,26 @@ import {
 
 function BurgerIngredients() {
   const [current, setCurrent] = React.useState('bun');
+  const [sectionOffsets, setSectionOffsets] = React.useState([]);
   const [isModalOpened, setIsModalOpened] = React.useState(false);
 
   const ingredients = useSelector((state) => state.ingredients.ingredients);
   const currentIngredient = useSelector((state) => state.ingredientDetails.currentIngredient);
   const dispatch = useDispatch();
+
+  const getSectionOffsets = () => {
+    return [
+      { id: 'bun', top: bunsRef.current.offsetTop },
+      { id: 'sauce', top: saucesRef.current.offsetTop },
+      { id: 'main', top: mainsRef.current.offsetTop },
+    ];
+  };
+
+  useEffect(() => {
+    if (ingredients.length > 0) {
+      setSectionOffsets(getSectionOffsets());
+    }
+  }, [ingredients]);
 
   useEffect(() => {
     dispatch(fetchIngredients());
@@ -39,19 +54,13 @@ function BurgerIngredients() {
   const mainsRef = useRef(null);
 
   const handleScroll = () => {
-    const bunsTop = bunsRef.current.getBoundingClientRect().top;
-    const saucesTop = saucesRef.current.getBoundingClientRect().top;
-    const mainsTop = mainsRef.current.getBoundingClientRect().top;
-
-    const containerBoundary = 250;
-
-    if (bunsTop <= containerBoundary && saucesTop > containerBoundary) {
-      setCurrent('bun');
-    } else if (saucesTop <= containerBoundary && mainsTop > containerBoundary) {
-      setCurrent('sauce');
-    } else if (mainsTop <= containerBoundary) {
-      setCurrent('main');
-    }
+    const scrollPosition = document.querySelector('#ingredientsContainer').scrollTop;
+    const currentSection = sectionOffsets.reduce((prev, curr) => {
+      return Math.abs(curr.top - scrollPosition) < Math.abs(prev.top - scrollPosition)
+        ? curr
+        : prev;
+    });
+    setCurrent(currentSection.id);
   };
 
   useEffect(() => {
@@ -65,7 +74,7 @@ function BurgerIngredients() {
         ingredientsContainer.removeEventListener('scroll', handleScroll);
       }
     };
-  }, []);
+  }, [sectionOffsets]);
 
   return (
     <section className={styleIngredients.container}>
