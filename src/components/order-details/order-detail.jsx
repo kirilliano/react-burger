@@ -1,9 +1,8 @@
-import { useSelector } from 'react-redux';
 import styleDetails from '../order-details/order-detail.module.css';
-import { getOrderNumber } from '../../services/orderSlice';
+import { useSelector } from 'react-redux';
 
 function OrderDetails() {
-  const orderNumber = useSelector(getOrderNumber);
+  const orderNumber = useSelector((state) => state.order.orderNumber);
 
   return (
     <div className={styleDetails.container}>

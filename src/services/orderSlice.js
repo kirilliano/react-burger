@@ -1,63 +1,38 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import { submitOrder } from '../utils/burger-api';
 
-const NORMA_API = 'https://norma.nomoreparties.space/api';
-
-const initialState = {
-  order: {},
-  status: 'idle',
-  error: null,
-};
-
-export const createOrder = createAsyncThunk(
-  'order/createOrder',
-  async (ingredientIds, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${NORMA_API}/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ingredients: ingredientIds }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Ошибка сервера: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  },
-);
-
-const orderSlice = createSlice({
+export const orderSlice = createSlice({
   name: 'order',
-  initialState,
-  reducers: {
-    resetOrder: (state) => {
-      state.order = {};
-      state.status = 'idle';
-      state.error = null;
-    },
+  initialState: {
+    orderNumber: null,
+    isLoading: false,
+    error: null,
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(createOrder.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(createOrder.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.order = action.payload;
-      })
-      .addCase(createOrder.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload;
-      });
+  reducers: {
+    createOrderRequest: (state) => {
+      state.isLoading = true;
+    },
+    createOrderSuccess: (state, action) => {
+      state.orderNumber = action.payload;
+      state.isLoading = false;
+    },
+    createOrderFailure: (state, action) => {
+      state.error = action.payload;
+      state.isLoading = false;
+    },
   },
 });
 
-export const { resetOrder } = orderSlice.actions;
+export const { createOrderRequest, createOrderSuccess, createOrderFailure } = orderSlice.actions;
+
+export const createOrderAsync = (orderData) => async (dispatch) => {
+  try {
+    dispatch(createOrderRequest());
+    const orderNumber = await submitOrder(orderData);
+    dispatch(createOrderSuccess(orderNumber));
+  } catch (error) {
+    dispatch(createOrderFailure(error.message));
+  }
+};
 
 export default orderSlice.reducer;

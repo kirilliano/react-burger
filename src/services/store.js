@@ -1,14 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import constructorReducer from './constructorSlice';
-import ingredientsReducer from './ingredientsSlice';
-import ingredientDetailsReducer from './ingredientDetailsSlice';
-import orderReducer from './orderSlice';
+import rootReducer from '../services/rootReducer';
+import thunk from 'redux-thunk';
 
-export default configureStore({
-  reducer: {
-    constructor: constructorReducer,
-    ingredients: ingredientsReducer,
-    ingredientDetails: ingredientDetailsReducer,
-    order: orderReducer,
-  },
+const store = configureStore({
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
 });
+
+export default store;

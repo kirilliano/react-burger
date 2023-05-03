@@ -1,32 +1,35 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { getIngredients } from '../utils/burger-api';
+
+export const fetchIngredients = createAsyncThunk('ingredients/fetchIngredients', async () => {
+  const response = await getIngredients();
+  return response.data;
+});
 
 const initialState = {
   ingredients: [],
-  ingredientsLoading: false,
-  ingredientsError: null,
+  status: 'idle',
+  error: null,
 };
 
 const ingredientsSlice = createSlice({
   name: 'ingredients',
   initialState,
-  reducers: {
-    getIngredientsRequest: (state) => {
-      // Устанавливаем состояние загрузки
-      state.ingredientsLoading = true;
-    },
-    getIngredientsSuccess: (state, action) => {
-      // Устанавливаем данные ингредиентов и сбрасываем состояние загрузки
-      state.ingredients = action.payload;
-      state.ingredientsLoading = false;
-    },
-    getIngredientsFailure: (state, action) => {
-      // Устанавливаем ошибку и сбрасываем состояние загрузки
-      state.ingredientsError = action.payload;
-      state.ingredientsLoading = false;
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchIngredients.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchIngredients.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.ingredients = action.payload;
+      })
+      .addCase(fetchIngredients.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      });
   },
 });
 
-export const { getIngredientsRequest, getIngredientsSuccess, getIngredientsFailure } =
-  ingredientsSlice.actions;
 export default ingredientsSlice.reducer;

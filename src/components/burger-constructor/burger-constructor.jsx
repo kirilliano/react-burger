@@ -6,50 +6,31 @@ import {
 } from '@ya.praktikum/react-developer-burger-ui-components';
 import styleConstructor from './burger-constructor.module.css';
 import Modal from '../modal/modal';
-import OrderDetails from '../order-details/order-details';
-import { ConstructorContext } from '../../services/constructorContext';
-import { calcTotalPrice } from '../../services/burgerSlice';
-import { useSelector } from 'react-redux';
+import OrderDetails from '../order-details/order-detail';
+import { useSelector, useDispatch } from 'react-redux';
+import { createOrderAsync } from '../../services/orderSlice';
 
 function BurgerConstructor() {
-  const { bun, ingredients } = useSelector((state) => state.burger);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const { orderNumber, setOrderNumber } = React.useContext(ConstructorContext);
-  const totalPrice = useSelector(calcTotalPrice);
+  const dispatch = useDispatch();
+  const constructorIngredients = useSelector((state) => state.constructor.ingredients);
+  const currentTotalPrice = useSelector((state) => state.constructor?.totalPrice);
+  const orderNumber = useSelector((state) => state.order.number);
 
-  function submitOrder() {
-    const ingredientIds = ingredients.map((ingredient) => ingredient._id);
-
-    fetch('https://norma.nomoreparties.space/api/orders', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ingredients: ingredientIds,
-        bun: bun._id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          setIsModalOpen(true);
-          setOrderNumber(data.order.number);
-        } else {
-          console.log('Что-то пошло не так');
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+  const bun = constructorIngredients?.find((ingredient) => ingredient.type === 'bun');
 
   const handleOrderClick = () => {
-    submitOrder();
+    if (!bun) {
+      alert('Добавьте булку в заказ!');
+      return;
+    }
+    dispatch(createOrderAsync(constructorIngredients));
+    setIsModalOpen(true);
   };
 
   return (
     <section className={styleConstructor.list}>
+      {constructorIngredients?.length === 0 ? <p>Ваш заказ пуст</p> : null}
       {bun && (
         <div className={styleConstructor.blockedIngredient}>
           <ConstructorElement
@@ -64,7 +45,7 @@ function BurgerConstructor() {
       )}
 
       <ul className={styleConstructor.includedIngredients}>
-        {ingredients.map((ingredient, index) => {
+        {constructorIngredients?.map((ingredient, index) => {
           if (ingredient.type !== 'bun') {
             return (
               <li key={`${ingredient._id}-${index}`} className={styleConstructor.item}>
@@ -96,7 +77,7 @@ function BurgerConstructor() {
 
       <div className={styleConstructor.summary}>
         <div className={styleConstructor.value}>
-          <p className="text text_type_digits-medium">{totalPrice}</p>
+          <p className="text text_type_digits-medium">{currentTotalPrice}</p>
           <CurrencyIcon type="primary" />
         </div>
         <Button htmlType="button" type="primary" size="large" onClick={handleOrderClick}>
