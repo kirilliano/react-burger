@@ -25,11 +25,6 @@ function BurgerIngredients() {
   }, [dispatch]);
 
   const handleIngredientClick = (ingredient) => {
-    if (ingredient.type !== 'bun') {
-      dispatch(addIngredient(ingredient));
-    } else {
-      // Ваш код для добавления булок в BurgerConstructor
-    }
     dispatch(setCurrentIngredient(ingredient));
     setIsModalOpened(true);
   };
