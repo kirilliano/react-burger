@@ -63,6 +63,12 @@ function BurgerIngredients() {
     setCurrent(currentSection.id);
   };
 
+  const handleDrop = (ingredient) => {
+    if (ingredient.type !== 'bun') {
+      dispatch(addIngredient(ingredient));
+    }
+  };
+
   useEffect(() => {
     const ingredientsContainer = document.querySelector('#ingredientsContainer');
     if (ingredientsContainer) {
@@ -98,6 +104,7 @@ function BurgerIngredients() {
             type="bun"
             onClick={handleIngredientClick}
             ref={bunsRef}
+            onDrop={handleDrop}
           />
           <IngredientsBlock
             title="Соусы"
@@ -105,6 +112,7 @@ function BurgerIngredients() {
             type="sauce"
             onClick={handleIngredientClick}
             ref={saucesRef}
+            onDrop={handleDrop}
           />
           <IngredientsBlock
             title="Начинки"
@@ -112,6 +120,7 @@ function BurgerIngredients() {
             type="main"
             onClick={handleIngredientClick}
             ref={mainsRef}
+            onDrop={handleDrop}
           />
         </div>
       ) : (

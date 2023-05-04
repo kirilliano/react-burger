@@ -9,6 +9,9 @@ export const constructorSlice = createSlice({
   initialState,
   reducers: {
     addIngredient: (state, action) => {
+      if (!Array.isArray(state.ingredients)) {
+        state.ingredients = [];
+      }
       return {
         ...state,
         ingredients: [...state.ingredients, action.payload],
@@ -31,7 +34,7 @@ export const constructorSlice = createSlice({
 export const { addIngredient, removeIngredient, reorderIngredients } = constructorSlice.actions;
 
 export const totalPrice = createSelector(
-  (state) => state.constructor.ingredients, // Use state.constructor.ingredients instead of state.ingredients
+  (state) => state.constructor.ingredients,
   (ingredients) => {
     const bun = ingredients.find((ingredient) => ingredient.type === 'bun');
     const bunPrice = bun ? bun.price * 2 : 0;

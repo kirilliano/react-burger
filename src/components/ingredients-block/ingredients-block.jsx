@@ -1,5 +1,4 @@
 import React, { forwardRef } from 'react';
-import PropTypes from 'prop-types';
 import Ingredient from '../ingredient/ingredient';
 import styleBlock from '../ingredients-block/ingredients-block.module.css';
 
@@ -13,18 +12,19 @@ const IngredientsBlock = forwardRef(({ title, ingredients, type, onClick }, ref)
       <ul className={styleBlock.block}>
         {filteredIngredients &&
           filteredIngredients.map((ingredient) => (
-            <Ingredient key={ingredient._id} {...ingredient} onClick={() => onClick(ingredient)} />
+            <li key={ingredient._id}>
+              <div onClick={() => onClick(ingredient)}>
+                <Ingredient
+                  image={ingredient.image}
+                  name={ingredient.name}
+                  price={ingredient.price}
+                />
+              </div>
+            </li>
           ))}
       </ul>
     </section>
   );
 });
-
-IngredientsBlock.propTypes = {
-  title: PropTypes.string.isRequired,
-  ingredients: PropTypes.array.isRequired,
-  type: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
-};
 
 export default IngredientsBlock;

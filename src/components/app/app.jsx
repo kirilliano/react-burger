@@ -5,6 +5,8 @@ import BurgerConstructor from '../burger-constructor/burger-constructor';
 import { ConstructorContext } from '../../services/constructorContext.js';
 import { getIngredients } from '../../utils/burger-api';
 import style from './app.module.css';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 function App() {
   const [ingredients, setIngredients] = React.useState([]);
@@ -49,8 +51,10 @@ function App() {
           <p className={style.error}>Произошла ошибка: {error}</p>
         ) : (
           <ConstructorContext.Provider value={contextValue}>
-            <BurgerIngredients />
-            <BurgerConstructor />
+            <DndProvider backend={HTML5Backend}>
+              <BurgerIngredients />
+              <BurgerConstructor />
+            </DndProvider>
           </ConstructorContext.Provider>
         )}
       </main>

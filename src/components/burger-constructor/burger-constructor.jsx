@@ -9,6 +9,8 @@ import Modal from '../modal/modal';
 import OrderDetails from '../order-details/order-detail';
 import { useSelector, useDispatch } from 'react-redux';
 import { createOrderAsync } from '../../services/orderSlice';
+import { addIngredient } from '../../services/constructorSlice';
+import { useDrop } from 'react-dnd';
 
 function BurgerConstructor() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -28,8 +30,24 @@ function BurgerConstructor() {
     setIsModalOpen(true);
   };
 
+  const handleDrop = (ingredient) => {
+    const ingredientWithUniqueId = {
+      ...ingredient,
+      uniqueId: `${ingredient._id}-${Date.now()}`,
+    };
+    dispatch(addIngredient(ingredientWithUniqueId));
+  };
+
+  const [{ isOver }, dropRef] = useDrop(() => ({
+    accept: 'ingredient',
+    drop: (item) => handleDrop(item.ingredient),
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  }));
+
   return (
-    <section className={styleConstructor.list}>
+    <section className={styleConstructor.list} ref={dropRef}>
       {constructorIngredients?.length === 0 ? <p>Ваш заказ пуст</p> : null}
       {bun && (
         <div className={styleConstructor.blockedIngredient}>
