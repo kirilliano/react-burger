@@ -45,6 +45,10 @@ export const { addIngredient, removeIngredient, reorderIngredients, incrementCon
 export const totalPrice = createSelector(
   (state) => state.constructor.ingredients,
   (ingredients) => {
+    if (!ingredients) {
+      return 0;
+    }
+
     const bun = ingredients.find((ingredient) => ingredient.type === 'bun');
     const bunPrice = bun ? bun.price * 2 : 0;
     const otherIngredientsPrice = ingredients

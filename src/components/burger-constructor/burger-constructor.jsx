@@ -9,7 +9,7 @@ import Modal from '../modal/modal';
 import OrderDetails from '../order-details/order-detail';
 import { useSelector, useDispatch } from 'react-redux';
 import { createOrderAsync } from '../../services/orderSlice';
-import { addIngredient } from '../../services/constructorSlice';
+import { addIngredient, totalPrice } from '../../services/constructorSlice';
 import { useDrop } from 'react-dnd';
 import { incrementCounter } from '../../services/ingredientsSlice';
 
@@ -17,7 +17,7 @@ function BurgerConstructor() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const dispatch = useDispatch();
   const constructorIngredients = useSelector((state) => state.constructor.ingredients);
-  const currentTotalPrice = useSelector((state) => state.constructor?.totalPrice);
+  const currentTotalPrice = useSelector(totalPrice);
   const orderNumber = useSelector((state) => state.order.number);
 
   const bun = constructorIngredients?.find((ingredient) => ingredient.type === 'bun');
