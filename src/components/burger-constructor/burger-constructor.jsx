@@ -33,8 +33,8 @@ function BurgerConstructor() {
 
   const onDrop = useCallback(
     (item) => {
-      dispatch(addIngredient(item)); // добавьте ингредиент в конструктор
-      dispatch(incrementCounter(item._id)); // увеличьте счетчик
+      dispatch(addIngredient(item));
+      dispatch(incrementCounter(item._id));
     },
     [dispatch],
   );
@@ -42,7 +42,6 @@ function BurgerConstructor() {
   const [, dropRef] = useDrop({
     accept: 'ingredient',
     drop: (item) => {
-      // Обработка события перетаскивания ингредиента в BurgerConstructor
       onDrop(item);
     },
   });

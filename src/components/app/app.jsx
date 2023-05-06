@@ -9,7 +9,6 @@ import { Provider } from 'react-redux';
 import store from '../../services/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchIngredients } from '../../services/ingredientsSlice';
-import { addIngredient } from '../../services/constructorSlice';
 
 function App() {
   const dispatch = useDispatch();
