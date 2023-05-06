@@ -1,4 +1,5 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
+import { incrementCounter } from '../services/ingredientsSlice';
 const initialState = {
   ingredients: [],
   totalPrice: 0,
@@ -28,10 +29,18 @@ export const constructorSlice = createSlice({
       const [removed] = state.ingredients.splice(oldIndex, 1);
       state.ingredients.splice(newIndex, 0, removed);
     },
+    incrementConstructorCounter: (state, action) => {
+      const id = action.payload;
+      const ingredient = state.ingredients.find((i) => i._id === id);
+      if (ingredient) {
+        ingredient.count = ingredient.count ? ingredient.count + 1 : 1;
+      }
+    },
   },
 });
 
-export const { addIngredient, removeIngredient, reorderIngredients } = constructorSlice.actions;
+export const { addIngredient, removeIngredient, reorderIngredients, incrementConstructorCounter } =
+  constructorSlice.actions;
 
 export const totalPrice = createSelector(
   (state) => state.constructor.ingredients,

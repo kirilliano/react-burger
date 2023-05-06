@@ -2,46 +2,25 @@ import React from 'react';
 import AppHeader from '../app-header/app-header';
 import BurgerIngredients from '../burger-ingredients/burger-ingredients';
 import BurgerConstructor from '../burger-constructor/burger-constructor';
-import { ConstructorContext } from '../../services/constructorContext.js';
-import { getIngredients } from '../../utils/burger-api';
 import style from './app.module.css';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { Provider } from 'react-redux';
+import store from '../../services/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchIngredients } from '../../services/ingredientsSlice';
+import { addIngredient } from '../../services/constructorSlice';
 
 function App() {
-  const [ingredients, setIngredients] = React.useState([]);
-  const [error, setError] = React.useState(null);
-  const [constructorIngredients, setConstructorIngredients] = React.useState([]);
+  const dispatch = useDispatch();
+  const { ingredients, status, error } = useSelector((state) => state.ingredients);
+  console.log('Ingredients in Redux Store:', ingredients);
+  const constructorIngredients = useSelector((state) => state.ingredients.ingredients);
   const [orderNumber, setOrderNumber] = React.useState(null);
 
-  const addIngredient = (ingredient) => {
-    setConstructorIngredients((prevIngredients) => [...prevIngredients, ingredient]);
-  };
-
-  const contextValue = React.useMemo(
-    () => ({
-      ingredients,
-      constructorIngredients,
-      setConstructorIngredients,
-      addIngredient,
-      orderNumber,
-      setOrderNumber,
-    }),
-    [ingredients, constructorIngredients, addIngredient, orderNumber],
-  );
-
   React.useEffect(() => {
-    async function fetchData() {
-      getIngredients()
-        .then((data) => {
-          setIngredients(data.data);
-        })
-        .catch((err) => {
-          setError(err);
-        });
-    }
-    fetchData();
-  }, []);
+    dispatch(fetchIngredients());
+  }, [dispatch]);
 
   return (
     <>
@@ -50,16 +29,20 @@ function App() {
         {error ? (
           <p className={style.error}>Произошла ошибка: {error}</p>
         ) : (
-          <ConstructorContext.Provider value={contextValue}>
-            <DndProvider backend={HTML5Backend}>
-              <BurgerIngredients />
-              <BurgerConstructor />
-            </DndProvider>
-          </ConstructorContext.Provider>
+          <DndProvider backend={HTML5Backend}>
+            <BurgerIngredients />
+            <BurgerConstructor />
+          </DndProvider>
         )}
       </main>
     </>
   );
 }
 
-export default App;
+const WrappedApp = () => (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
+
+export default WrappedApp;

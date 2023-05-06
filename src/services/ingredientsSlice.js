@@ -1,9 +1,15 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import { getIngredients } from '../utils/burger-api';
 
 export const fetchIngredients = createAsyncThunk('ingredients/fetchIngredients', async () => {
-  const response = await getIngredients();
-  return response.data;
+  try {
+    const response = await getIngredients();
+    console.log('Response:', response);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching ingredients:', error);
+    throw error;
+  }
 });
 
 const initialState = {
@@ -15,7 +21,16 @@ const initialState = {
 const ingredientsSlice = createSlice({
   name: 'ingredients',
   initialState,
-  reducers: {},
+  reducers: {
+    incrementCounter: (state, action) => {
+      console.log('incrementCounter called with:', action.payload);
+      const id = action.payload;
+      const ingredient = state.ingredients.find((i) => i._id === id);
+      if (ingredient) {
+        ingredient.count = ingredient.count ? ingredient.count + 1 : 1;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchIngredients.pending, (state) => {
@@ -32,4 +47,5 @@ const ingredientsSlice = createSlice({
   },
 });
 
+export const { incrementCounter } = ingredientsSlice.actions;
 export default ingredientsSlice.reducer;

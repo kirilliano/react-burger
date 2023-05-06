@@ -15,9 +15,11 @@ const IngredientsBlock = forwardRef(({ title, ingredients, type, onClick }, ref)
             <li key={ingredient._id}>
               <div onClick={() => onClick(ingredient)}>
                 <Ingredient
+                  _id={ingredient._id}
                   image={ingredient.image}
                   name={ingredient.name}
                   price={ingredient.price}
+                  count={ingredient.count}
                 />
               </div>
             </li>
