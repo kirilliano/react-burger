@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   ConstructorElement,
   Button,
@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { createOrderAsync } from '../../services/orderSlice';
 import { addIngredient } from '../../services/constructorSlice';
 import { useDrop } from 'react-dnd';
+import { incrementCounter } from '../../services/ingredientsSlice';
 
 function BurgerConstructor() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -30,21 +31,21 @@ function BurgerConstructor() {
     setIsModalOpen(true);
   };
 
-  const handleDrop = (ingredient) => {
-    const ingredientWithUniqueId = {
-      ...ingredient,
-      uniqueId: `${ingredient._id}-${Date.now()}`,
-    };
-    dispatch(addIngredient(ingredientWithUniqueId));
-  };
+  const onDrop = useCallback(
+    (item) => {
+      dispatch(addIngredient(item)); // добавьте ингредиент в конструктор
+      dispatch(incrementCounter(item._id)); // увеличьте счетчик
+    },
+    [dispatch],
+  );
 
-  const [{ isOver }, dropRef] = useDrop(() => ({
+  const [, dropRef] = useDrop({
     accept: 'ingredient',
-    drop: (item) => handleDrop(item.ingredient),
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-    }),
-  }));
+    drop: (item) => {
+      // Обработка события перетаскивания ингредиента в BurgerConstructor
+      onDrop(item);
+    },
+  });
 
   return (
     <section className={styleConstructor.list} ref={dropRef}>

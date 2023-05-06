@@ -7,6 +7,7 @@ export function getIngredients() {
 
 export default function controlApiResponse(res) {
   if (res.ok) {
+    console.log('Control API Response:', res);
     return res.json();
   }
   return Promise.reject(`Что-то пошло не так: ${res.status}`);

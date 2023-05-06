@@ -5,8 +5,7 @@ import IngredientsBlock from '../ingredients-block/ingredients-block';
 import Modal from '../modal/modal';
 import IngredientDetails from '../ingredient-details/ingredient-details';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchIngredients, selectIngredients } from '../../services/ingredientsSlice';
-import { addIngredient } from '../../services/constructorSlice';
+import { fetchIngredients } from '../../services/ingredientsSlice';
 import {
   setCurrentIngredient,
   clearCurrentIngredient,
@@ -17,9 +16,14 @@ function BurgerIngredients() {
   const [sectionOffsets, setSectionOffsets] = React.useState([]);
   const [isModalOpened, setIsModalOpened] = React.useState(false);
 
-  const ingredients = useSelector((state) => state.ingredients.ingredients);
   const currentIngredient = useSelector((state) => state.ingredientDetails.currentIngredient);
   const dispatch = useDispatch();
+
+  const { ingredients, status, error } = useSelector((state) => state.ingredients);
+
+  const bunsRef = useRef(null);
+  const saucesRef = useRef(null);
+  const mainsRef = useRef(null);
 
   const getSectionOffsets = () => {
     return [
@@ -36,38 +40,10 @@ function BurgerIngredients() {
   }, [ingredients]);
 
   useEffect(() => {
-    dispatch(fetchIngredients());
-  }, [dispatch]);
-
-  const handleIngredientClick = (ingredient) => {
-    dispatch(setCurrentIngredient(ingredient));
-    setIsModalOpened(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpened(false);
-    dispatch(clearCurrentIngredient());
-  };
-
-  const bunsRef = useRef(null);
-  const saucesRef = useRef(null);
-  const mainsRef = useRef(null);
-
-  const handleScroll = () => {
-    const scrollPosition = document.querySelector('#ingredientsContainer').scrollTop;
-    const currentSection = sectionOffsets.reduce((prev, curr) => {
-      return Math.abs(curr.top - scrollPosition) < Math.abs(prev.top - scrollPosition)
-        ? curr
-        : prev;
-    });
-    setCurrent(currentSection.id);
-  };
-
-  const handleDrop = (ingredient) => {
-    if (ingredient.type !== 'bun') {
-      dispatch(addIngredient(ingredient));
+    if (status === 'idle') {
+      dispatch(fetchIngredients());
     }
-  };
+  }, [status, dispatch]);
 
   useEffect(() => {
     const ingredientsContainer = document.querySelector('#ingredientsContainer');
@@ -81,6 +57,34 @@ function BurgerIngredients() {
       }
     };
   }, [sectionOffsets]);
+
+  if (status === 'loading') {
+    return <p className="text text_type_main-large mt-10">Загрузка ингредиентов...</p>;
+  }
+
+  if (status === 'failed') {
+    return <p className="text text_type_main-large mt-10">Ошибка загрузки ингредиентов: {error}</p>;
+  }
+
+  const handleIngredientClick = (ingredient) => {
+    dispatch(setCurrentIngredient(ingredient));
+    setIsModalOpened(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpened(false);
+    dispatch(clearCurrentIngredient());
+  };
+
+  const handleScroll = () => {
+    const scrollPosition = document.querySelector('#ingredientsContainer').scrollTop;
+    const currentSection = sectionOffsets.reduce((prev, curr) => {
+      return Math.abs(curr.top - scrollPosition) < Math.abs(prev.top - scrollPosition)
+        ? curr
+        : prev;
+    });
+    setCurrent(currentSection.id);
+  };
 
   return (
     <section className={styleIngredients.container}>
@@ -104,7 +108,6 @@ function BurgerIngredients() {
             type="bun"
             onClick={handleIngredientClick}
             ref={bunsRef}
-            onDrop={handleDrop}
           />
           <IngredientsBlock
             title="Соусы"
@@ -112,7 +115,6 @@ function BurgerIngredients() {
             type="sauce"
             onClick={handleIngredientClick}
             ref={saucesRef}
-            onDrop={handleDrop}
           />
           <IngredientsBlock
             title="Начинки"
@@ -120,7 +122,6 @@ function BurgerIngredients() {
             type="main"
             onClick={handleIngredientClick}
             ref={mainsRef}
-            onDrop={handleDrop}
           />
         </div>
       ) : (
