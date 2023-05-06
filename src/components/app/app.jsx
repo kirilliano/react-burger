@@ -9,12 +9,9 @@ import { Provider } from 'react-redux';
 import store from '../../services/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchIngredients } from '../../services/ingredientsSlice';
+import { addIngredient } from '../../services/constructorSlice';
 
 function App() {
-  const dispatch = useDispatch();
-  const { ingredients, status, error } = useSelector((state) => state.ingredients);
-  console.log('Ingredients in Redux Store:', ingredients);
-  const constructorIngredients = useSelector((state) => state.ingredients.ingredients);
   const dispatch = useDispatch();
   const { ingredients, status, error } = useSelector((state) => state.ingredients);
   console.log('Ingredients in Redux Store:', ingredients);
@@ -22,8 +19,6 @@ function App() {
   const [orderNumber, setOrderNumber] = React.useState(null);
 
   React.useEffect(() => {
-    dispatch(fetchIngredients());
-  }, [dispatch]);
     dispatch(fetchIngredients());
   }, [dispatch]);
 
@@ -38,23 +33,12 @@ function App() {
             <BurgerIngredients />
             <BurgerConstructor />
           </DndProvider>
-          <DndProvider backend={HTML5Backend}>
-            <BurgerIngredients />
-            <BurgerConstructor />
-          </DndProvider>
         )}
       </main>
     </>
   );
 }
 
-const WrappedApp = () => (
-  <Provider store={store}>
-    <App />
-  </Provider>
-);
-
-export default WrappedApp;
 const WrappedApp = () => (
   <Provider store={store}>
     <App />

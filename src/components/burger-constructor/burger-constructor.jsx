@@ -12,7 +12,6 @@ import { createOrderAsync } from '../../services/orderSlice';
 import { addIngredient } from '../../services/constructorSlice';
 import { useDrop } from 'react-dnd';
 import { incrementCounter } from '../../services/ingredientsSlice';
-import { incrementCounter } from '../../services/ingredientsSlice';
 
 function BurgerConstructor() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -42,11 +41,10 @@ function BurgerConstructor() {
 
   const [, dropRef] = useDrop({
     accept: 'ingredient',
-    drop: (item) => handleDrop(item.ingredient),
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-    }),
-  }));
+    drop: (item) => {
+      onDrop(item);
+    },
+  });
 
   return (
     <section className={styleConstructor.list} ref={dropRef}>
