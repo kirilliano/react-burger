@@ -21,9 +21,9 @@ import { incrementCounter, decrementCounter } from '../../services/ingredientsSl
 function BurgerConstructor() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const dispatch = useDispatch();
-  const constructorIngredients = useSelector((state) => state.constructor.otherIngredients);
   const currentTotalPrice = useSelector(totalPrice);
-  const orderNumber = useSelector((state) => state.order.number);
+  const orderStatus = useSelector((state) => state.order.status);
+  const orderNumber = useSelector((state) => state.order.orderNumber);
 
   const { otherIngredients } = useSelector((state) => state.constructor);
   const bun = useSelector((state) => state.constructor.bun);
@@ -51,13 +51,16 @@ function BurgerConstructor() {
         console.log('Adding a bun');
         dispatch(setBun(item));
         dispatch(incrementCounter(item._id));
+        if (bun) {
+          dispatch(decrementCounter(bun._id));
+        }
       } else {
         console.log('Adding another ingredient:');
         dispatch(addIngredient(item));
         dispatch(incrementCounter(item._id));
       }
     },
-    [dispatch],
+    [dispatch, bun],
   );
 
   const [, dropRef] = useDrop({
@@ -69,7 +72,7 @@ function BurgerConstructor() {
 
   return (
     <section className={styleConstructor.list} ref={dropRef}>
-      {constructorIngredients?.length === 0 ? <p>Ваш заказ пуст</p> : null}
+      {otherIngredients?.length === 0 ? <p>Ваш заказ пуст</p> : null}
       {bun && (
         <div className={styleConstructor.blockedIngredient}>
           <ConstructorElement
@@ -121,7 +124,7 @@ function BurgerConstructor() {
         </Button>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && orderStatus === 'succeeded' && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <OrderDetails orderNumber={orderNumber} />
         </Modal>
