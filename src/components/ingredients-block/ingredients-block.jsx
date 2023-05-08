@@ -20,6 +20,7 @@ const IngredientsBlock = forwardRef(({ title, ingredients, type, onClick }, ref)
                   name={ingredient.name}
                   price={ingredient.price}
                   count={ingredient.count}
+                  type={ingredient.type}
                 />
               </div>
             </li>

@@ -30,6 +30,13 @@ const ingredientsSlice = createSlice({
         ingredient.count = ingredient.count ? ingredient.count + 1 : 1;
       }
     },
+    decrementCounter: (state, action) => {
+      const id = action.payload;
+      const ingredient = state.ingredients.find((i) => i._id === id);
+      if (ingredient && ingredient.count > 0) {
+        ingredient.count -= 1;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -47,5 +54,5 @@ const ingredientsSlice = createSlice({
   },
 });
 
-export const { incrementCounter } = ingredientsSlice.actions;
+export const { incrementCounter, decrementCounter } = ingredientsSlice.actions;
 export default ingredientsSlice.reducer;

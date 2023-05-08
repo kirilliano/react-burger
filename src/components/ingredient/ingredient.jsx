@@ -2,8 +2,8 @@ import { CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-c
 import styleIngredient from '../ingredient/ingredient.module.css';
 import { useDrag } from 'react-dnd';
 
-function Ingredient({ _id, image, name, price, count }) {
-  const ingredient = { _id, image, name, price };
+function Ingredient({ _id, image, name, price, count, type }) {
+  const ingredient = { _id, image, name, price, type };
 
   const [, dragRef] = useDrag(() => ({
     type: 'ingredient',

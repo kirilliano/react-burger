@@ -1,7 +1,9 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 import { incrementCounter } from '../services/ingredientsSlice';
+
 const initialState = {
-  ingredients: [],
+  bun: null,
+  otherIngredients: [],
   totalPrice: 0,
 };
 
@@ -9,51 +11,61 @@ export const constructorSlice = createSlice({
   name: 'constructor',
   initialState,
   reducers: {
+    setBun: (state, action) => {
+      if (!action.payload) {
+        return state;
+      }
+
+      if (state.bun) {
+        state.totalPrice -= state.bun.price * 2;
+      }
+      state.bun = { ...action.payload };
+      state.totalPrice += state.bun.price * 2;
+      return state;
+    },
     addIngredient: (state, action) => {
-      if (!Array.isArray(state.ingredients)) {
-        state.ingredients = [];
+      if (!Array.isArray(state.otherIngredients)) {
+        state.otherIngredients = [];
       }
       return {
         ...state,
-        ingredients: [...state.ingredients, action.payload],
+        otherIngredients: [...state.otherIngredients, action.payload],
         totalPrice: state.totalPrice + action.payload.price,
       };
     },
     removeIngredient: (state, action) => {
-      const removedIngredient = state.ingredients[action.payload];
-      state.ingredients = state.ingredients.filter((_, index) => index !== action.payload);
-      state.totalPrice -= removedIngredient.price;
+      const removedIngredient = state.otherIngredients[action.payload];
+      state.otherIngredients = state.otherIngredients.filter(
+        (_, index) => index !== action.payload,
+      );
     },
     reorderIngredients: (state, action) => {
       const { oldIndex, newIndex } = action.payload;
-      const [removed] = state.ingredients.splice(oldIndex, 1);
-      state.ingredients.splice(newIndex, 0, removed);
-    },
-    incrementConstructorCounter: (state, action) => {
-      const id = action.payload;
-      const ingredient = state.ingredients.find((i) => i._id === id);
-      if (ingredient) {
-        ingredient.count = ingredient.count ? ingredient.count + 1 : 1;
-      }
+      const [removed] = state.otherIngredients.splice(oldIndex, 1);
+      state.otherIngredients.splice(newIndex, 0, removed);
     },
   },
 });
 
-export const { addIngredient, removeIngredient, reorderIngredients, incrementConstructorCounter } =
+export const { setBun, addIngredient, removeIngredient, reorderIngredients } =
   constructorSlice.actions;
 
 export const totalPrice = createSelector(
-  (state) => state.constructor.ingredients,
-  (ingredients) => {
-    if (!ingredients) {
+  (state) => state.constructor,
+  (constructor) => {
+    const bun = constructor.bun;
+    const otherIngredients = constructor.otherIngredients;
+
+    if (!otherIngredients || !Array.isArray(otherIngredients)) {
       return 0;
     }
 
-    const bun = ingredients.find((ingredient) => ingredient.type === 'bun');
     const bunPrice = bun ? bun.price * 2 : 0;
-    const otherIngredientsPrice = ingredients
-      .filter((ingredient) => ingredient.type !== 'bun')
-      .reduce((sum, ingredient) => sum + ingredient.price, 0);
+    const otherIngredientsPrice = otherIngredients.reduce(
+      (sum, ingredient) => sum + ingredient.price,
+      0,
+    );
+
     return bunPrice + otherIngredientsPrice;
   },
 );

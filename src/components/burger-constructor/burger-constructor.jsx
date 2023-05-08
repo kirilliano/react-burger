@@ -9,32 +9,53 @@ import Modal from '../modal/modal';
 import OrderDetails from '../order-details/order-detail';
 import { useSelector, useDispatch } from 'react-redux';
 import { createOrderAsync } from '../../services/orderSlice';
-import { addIngredient, totalPrice } from '../../services/constructorSlice';
+import {
+  setBun,
+  addIngredient,
+  removeIngredient,
+  totalPrice,
+} from '../../services/constructorSlice';
 import { useDrop } from 'react-dnd';
-import { incrementCounter } from '../../services/ingredientsSlice';
+import { incrementCounter, decrementCounter } from '../../services/ingredientsSlice';
 
 function BurgerConstructor() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const dispatch = useDispatch();
-  const constructorIngredients = useSelector((state) => state.constructor.ingredients);
+  const constructorIngredients = useSelector((state) => state.constructor.otherIngredients);
   const currentTotalPrice = useSelector(totalPrice);
   const orderNumber = useSelector((state) => state.order.number);
 
-  const bun = constructorIngredients?.find((ingredient) => ingredient.type === 'bun');
+  const { otherIngredients } = useSelector((state) => state.constructor);
+  const bun = useSelector((state) => state.constructor.bun);
 
   const handleOrderClick = () => {
     if (!bun) {
       alert('Добавьте булку в заказ!');
       return;
     }
-    dispatch(createOrderAsync(constructorIngredients));
+    dispatch(
+      createOrderAsync([
+        { ...bun, position: 'top' },
+        ...otherIngredients,
+        { ...bun, position: 'bottom' },
+      ]),
+    );
     setIsModalOpen(true);
   };
 
   const onDrop = useCallback(
     (item) => {
-      dispatch(addIngredient(item));
-      dispatch(incrementCounter(item._id));
+      console.log('Item dropped:', item);
+      console.log('Item type:', item.type);
+      if (item.type === 'bun') {
+        console.log('Adding a bun');
+        dispatch(setBun(item));
+        dispatch(incrementCounter(item._id));
+      } else {
+        console.log('Adding another ingredient:');
+        dispatch(addIngredient(item));
+        dispatch(incrementCounter(item._id));
+      }
     },
     [dispatch],
   );
@@ -63,20 +84,17 @@ function BurgerConstructor() {
       )}
 
       <ul className={styleConstructor.includedIngredients}>
-        {constructorIngredients?.map((ingredient, index) => {
-          if (ingredient.type !== 'bun') {
-            return (
-              <li key={`${ingredient._id}-${index}`} className={styleConstructor.item}>
-                <div className={styleConstructor.dots}></div>
-                <ConstructorElement
-                  text={ingredient.name}
-                  price={ingredient.price}
-                  thumbnail={ingredient.image}
-                />
-              </li>
-            );
-          }
-          return null;
+        {otherIngredients?.map((ingredient, index) => {
+          return (
+            <li key={`${ingredient._id}-${index}`} className={styleConstructor.item}>
+              <div className={styleConstructor.dots}></div>
+              <ConstructorElement
+                text={ingredient.name}
+                price={ingredient.price}
+                thumbnail={ingredient.image}
+              />
+            </li>
+          );
         })}
       </ul>
 
