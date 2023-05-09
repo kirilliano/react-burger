@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   ConstructorElement,
   Button,
@@ -58,32 +58,30 @@ function BurgerConstructor() {
     dispatch(decrementCounter(removedIngredient._id));
   };
 
-  const onDrop = useCallback(
-    (item) => {
-      console.log('Item dropped:', item);
-      console.log('Item type:', item.type);
-      if (item.type === 'bun') {
-        console.log('Adding a bun');
-        dispatch(setBun(item));
-        dispatch(incrementCounter(item._id));
-        if (bun) {
-          dispatch(decrementCounter(bun._id));
-        }
-      } else {
-        console.log('Adding another ingredient:');
-        dispatch(addIngredient(item));
-        dispatch(incrementCounter(item._id));
-      }
-    },
-    [dispatch, bun],
-  );
-
   const [, dropRef] = useDrop({
     accept: 'ingredient',
     drop: (item) => {
       onDrop(item);
     },
   });
+
+  const onDrop = useCallback(
+    (item) => {
+      console.log('Item dropped:', item);
+      console.log('Item type:', item.type);
+      if (item.type === 'bun') {
+        dispatch(setBun(item));
+        dispatch(incrementCounter(item._id));
+        if (bun) {
+          dispatch(decrementCounter(bun._id));
+        }
+      } else {
+        dispatch(addIngredient(item));
+        dispatch(incrementCounter(item._id));
+      }
+    },
+    [dispatch, bun],
+  );
 
   return (
     <section className={styleConstructor.list} ref={dropRef}>

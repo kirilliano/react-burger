@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import PropTypes from 'prop-types';
 import Ingredient from '../ingredient/ingredient';
 import styleBlock from '../ingredients-block/ingredients-block.module.css';
 
@@ -29,5 +30,21 @@ const IngredientsBlock = forwardRef(({ title, ingredients, type, onClick }, ref)
     </section>
   );
 });
+
+IngredientsBlock.propTypes = {
+  title: PropTypes.string.isRequired,
+  ingredients: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      image: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+      count: PropTypes.number,
+      type: PropTypes.string.isRequired,
+    }),
+  ),
+  type: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 
 export default IngredientsBlock;

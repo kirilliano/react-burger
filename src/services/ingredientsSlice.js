@@ -4,10 +4,8 @@ import { getIngredients } from '../utils/burger-api';
 export const fetchIngredients = createAsyncThunk('ingredients/fetchIngredients', async () => {
   try {
     const response = await getIngredients();
-    console.log('Response:', response);
     return response.data;
   } catch (error) {
-    console.error('Error fetching ingredients:', error);
     throw error;
   }
 });
@@ -23,7 +21,6 @@ const ingredientsSlice = createSlice({
   initialState,
   reducers: {
     incrementCounter: (state, action) => {
-      console.log('incrementCounter called with:', action.payload);
       const id = action.payload;
       const ingredient = state.ingredients.find((i) => i._id === id);
       if (ingredient) {

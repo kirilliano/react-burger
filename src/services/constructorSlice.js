@@ -1,5 +1,4 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
-import { incrementCounter } from '../services/ingredientsSlice';
 
 const initialState = {
   bun: null,

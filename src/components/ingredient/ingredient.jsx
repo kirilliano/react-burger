@@ -1,3 +1,5 @@
+import React from 'react';
+import PropTypes from 'prop-types';
 import { CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
 import styleIngredient from '../ingredient/ingredient.module.css';
 import { useDrag } from 'react-dnd';
@@ -22,5 +24,14 @@ function Ingredient({ _id, image, name, price, count, type }) {
     </div>
   );
 }
+
+Ingredient.propTypes = {
+  _id: PropTypes.string.isRequired,
+  image: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  price: PropTypes.number.isRequired,
+  count: PropTypes.number,
+  type: PropTypes.string.isRequired,
+};
 
 export default Ingredient;
