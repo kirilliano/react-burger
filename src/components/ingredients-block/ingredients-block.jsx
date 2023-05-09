@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import Ingredient from '../ingredient/ingredient';
 import styleBlock from '../ingredients-block/ingredients-block.module.css';
+import { ingredientType } from '../../utils/types';
 
 const IngredientsBlock = forwardRef(({ title, ingredients, type, onClick }, ref) => {
   const filteredIngredients =
@@ -15,14 +16,7 @@ const IngredientsBlock = forwardRef(({ title, ingredients, type, onClick }, ref)
           filteredIngredients.map((ingredient) => (
             <li key={ingredient._id}>
               <div onClick={() => onClick(ingredient)}>
-                <Ingredient
-                  _id={ingredient._id}
-                  image={ingredient.image}
-                  name={ingredient.name}
-                  price={ingredient.price}
-                  count={ingredient.count}
-                  type={ingredient.type}
-                />
+                <Ingredient ingredient={ingredient} count={ingredient.count} />
               </div>
             </li>
           ))}
@@ -33,16 +27,7 @@ const IngredientsBlock = forwardRef(({ title, ingredients, type, onClick }, ref)
 
 IngredientsBlock.propTypes = {
   title: PropTypes.string.isRequired,
-  ingredients: PropTypes.arrayOf(
-    PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      image: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      price: PropTypes.number.isRequired,
-      count: PropTypes.number,
-      type: PropTypes.string.isRequired,
-    }),
-  ),
+  ingredients: PropTypes.arrayOf(PropTypes.shape(ingredientType)),
   type: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
 };

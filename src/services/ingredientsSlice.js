@@ -2,12 +2,8 @@ import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit'
 import { getIngredients } from '../utils/burger-api';
 
 export const fetchIngredients = createAsyncThunk('ingredients/fetchIngredients', async () => {
-  try {
-    const response = await getIngredients();
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await getIngredients();
+  return response.data;
 });
 
 const initialState = {

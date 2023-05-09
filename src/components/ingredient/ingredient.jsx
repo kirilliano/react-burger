@@ -1,11 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
 import styleIngredient from '../ingredient/ingredient.module.css';
 import { useDrag } from 'react-dnd';
+import { ingredientType } from '../../utils/types';
+import PropTypes from 'prop-types';
 
-function Ingredient({ _id, image, name, price, count, type }) {
-  const ingredient = { _id, image, name, price, type };
+function Ingredient({ ingredient, count }) {
+  const { _id, image, name, price, type } = ingredient;
 
   const [, dragRef] = useDrag(() => ({
     type: 'ingredient',
@@ -26,12 +27,8 @@ function Ingredient({ _id, image, name, price, count, type }) {
 }
 
 Ingredient.propTypes = {
-  _id: PropTypes.string.isRequired,
-  image: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  price: PropTypes.number.isRequired,
+  ingredient: PropTypes.shape(ingredientType).isRequired,
   count: PropTypes.number,
-  type: PropTypes.string.isRequired,
 };
 
 export default Ingredient;

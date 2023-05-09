@@ -11,10 +11,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { createOrderAsync } from '../../services/orderSlice';
 import {
   setBun,
-  addIngredient,
   removeIngredient,
   totalPrice,
   moveIngredient,
+  addIngredientWithUuid,
 } from '../../services/constructorSlice';
 import { useDrop, useDrag } from 'react-dnd';
 import { incrementCounter, decrementCounter } from '../../services/ingredientsSlice';
@@ -76,7 +76,7 @@ function BurgerConstructor() {
           dispatch(decrementCounter(bun._id));
         }
       } else {
-        dispatch(addIngredient(item));
+        dispatch(addIngredientWithUuid(item));
         dispatch(incrementCounter(item._id));
       }
     },
@@ -102,7 +102,7 @@ function BurgerConstructor() {
         {otherIngredients?.map((ingredient, index) => {
           return (
             <DraggableIngredient
-              key={`${ingredient._id}-${index}`}
+              key={ingredient.uniqueId}
               index={index}
               ingredient={ingredient}
               onRemove={() => handleItemRemove(index)}

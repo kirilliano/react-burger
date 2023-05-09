@@ -1,38 +1,40 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { submitOrder as postOrder } from '../utils/burger-api';
 
-export const orderSlice = createSlice({
+export const createOrderAsync = createAsyncThunk(
+  'order/createOrder',
+  async (orderData, { rejectWithValue }) => {
+    try {
+      const response = await postOrder(orderData);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+const orderSlice = createSlice({
   name: 'order',
   initialState: {
     orderNumber: null,
     status: 'idle',
     error: null,
   },
-  reducers: {
-    createOrderRequest: (state) => {
-      state.status = 'loading';
-    },
-    createOrderSuccess: (state, action) => {
-      state.status = 'succeeded';
-      state.orderNumber = action.payload.orderNumber;
-    },
-    createOrderFailure: (state, action) => {
-      state.status = 'failed';
-      state.error = action.payload;
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(createOrderAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(createOrderAsync.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.orderNumber = action.payload.orderNumber;
+      })
+      .addCase(createOrderAsync.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      });
   },
 });
-
-export const { createOrderRequest, createOrderSuccess, createOrderFailure } = orderSlice.actions;
-
-export const createOrderAsync = (orderData) => async (dispatch) => {
-  try {
-    dispatch(createOrderRequest());
-    const response = await postOrder(orderData);
-    dispatch(createOrderSuccess(response));
-  } catch (error) {
-    dispatch(createOrderFailure(error.message));
-  }
-};
 
 export default orderSlice.reducer;

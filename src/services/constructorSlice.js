@@ -1,4 +1,5 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
 
 const initialState = {
   bun: null,
@@ -33,7 +34,7 @@ export const constructorSlice = createSlice({
       if (!Array.isArray(state.otherIngredients)) {
         state.otherIngredients = [];
       }
-      state.otherIngredients.push(action.payload);
+      state.otherIngredients.push({ ...action.payload });
       state.totalPrice += action.payload.price;
     },
     removeIngredient: (state, action) => {
@@ -73,5 +74,11 @@ export const totalPrice = createSelector(
     return bunPrice + otherIngredientsPrice;
   },
 );
+
+export const addIngredientWithUuid = (ingredient) => (dispatch) => {
+  const ingredientWithUuid = { ...ingredient, uniqueId: uuidv4() };
+  console.log('uniqueId:', ingredientWithUuid.uniqueId);
+  dispatch(addIngredient(ingredientWithUuid));
+};
 
 export default constructorSlice.reducer;
