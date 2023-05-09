@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ConstructorElement,
   Button,
@@ -14,8 +14,9 @@ import {
   addIngredient,
   removeIngredient,
   totalPrice,
+  moveIngredient,
 } from '../../services/constructorSlice';
-import { useDrop } from 'react-dnd';
+import { useDrop, useDrag } from 'react-dnd';
 import { incrementCounter, decrementCounter } from '../../services/ingredientsSlice';
 
 function BurgerConstructor() {
@@ -27,6 +28,14 @@ function BurgerConstructor() {
 
   const { otherIngredients } = useSelector((state) => state.constructor);
   const bun = useSelector((state) => state.constructor.bun);
+
+  const moveItem = useCallback(
+    (dragIndex, hoverIndex) => {
+      if (dragIndex === hoverIndex) return;
+      dispatch(moveIngredient({ fromIndex: dragIndex, toIndex: hoverIndex }));
+    },
+    [dispatch],
+  );
 
   const handleOrderClick = () => {
     if (!bun) {
@@ -41,6 +50,12 @@ function BurgerConstructor() {
       ]),
     );
     setIsModalOpen(true);
+  };
+
+  const handleItemRemove = (index) => {
+    dispatch(removeIngredient(index));
+    const removedIngredient = otherIngredients[index];
+    dispatch(decrementCounter(removedIngredient._id));
   };
 
   const onDrop = useCallback(
@@ -72,7 +87,6 @@ function BurgerConstructor() {
 
   return (
     <section className={styleConstructor.list} ref={dropRef}>
-      {otherIngredients?.length === 0 ? <p>Ваш заказ пуст</p> : null}
       {bun && (
         <div className={styleConstructor.blockedIngredient}>
           <ConstructorElement
@@ -89,14 +103,13 @@ function BurgerConstructor() {
       <ul className={styleConstructor.includedIngredients}>
         {otherIngredients?.map((ingredient, index) => {
           return (
-            <li key={`${ingredient._id}-${index}`} className={styleConstructor.item}>
-              <div className={styleConstructor.dots}></div>
-              <ConstructorElement
-                text={ingredient.name}
-                price={ingredient.price}
-                thumbnail={ingredient.image}
-              />
-            </li>
+            <DraggableIngredient
+              key={`${ingredient._id}-${index}`}
+              index={index}
+              ingredient={ingredient}
+              onRemove={() => handleItemRemove(index)}
+              onMove={moveItem}
+            />
           );
         })}
       </ul>
@@ -134,3 +147,38 @@ function BurgerConstructor() {
 }
 
 export default BurgerConstructor;
+
+function DraggableIngredient({ index, ingredient, onRemove, onMove }) {
+  const [, dragRef] = useDrag({
+    type: 'constructorIngredient',
+    item: { index },
+  });
+
+  const [, dropRef] = useDrop({
+    accept: 'constructorIngredient',
+    hover: (item, monitor) => {
+      if (!monitor.isOver({ shallow: true })) return;
+      const draggedIndex = item.index;
+      if (draggedIndex === index) return;
+      onMove(draggedIndex, index);
+      item.index = index;
+    },
+  });
+
+  const ref = (node) => {
+    dragRef(node);
+    dropRef(node);
+  };
+
+  return (
+    <li ref={ref} className={styleConstructor.item}>
+      <div className={styleConstructor.dots}></div>
+      <ConstructorElement
+        text={ingredient.name}
+        price={ingredient.price}
+        thumbnail={ingredient.image}
+        handleClose={onRemove}
+      />
+    </li>
+  );
+}

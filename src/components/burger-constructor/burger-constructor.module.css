@@ -51,6 +51,7 @@
   background: url('../../images/dots.svg');
   height: 24px;
   width: 24px;
+  cursor: grab;
 }
 
 .summary {

@@ -13,41 +13,46 @@ export const constructorSlice = createSlice({
   reducers: {
     setBun: (state, action) => {
       if (!action.payload) {
-        return state;
+        return { ...state };
       }
 
+      let newTotalPrice = state.totalPrice;
       if (state.bun) {
-        state.totalPrice -= state.bun.price * 2;
+        newTotalPrice -= state.bun.price * 2;
       }
-      state.bun = { ...action.payload };
-      state.totalPrice += state.bun.price * 2;
-      return state;
+
+      const newBun = { ...action.payload };
+      newTotalPrice += newBun.price * 2;
+
+      return {
+        ...state,
+        bun: newBun,
+        totalPrice: newTotalPrice,
+      };
     },
     addIngredient: (state, action) => {
       if (!Array.isArray(state.otherIngredients)) {
         state.otherIngredients = [];
       }
-      return {
-        ...state,
-        otherIngredients: [...state.otherIngredients, action.payload],
-        totalPrice: state.totalPrice + action.payload.price,
-      };
+      state.otherIngredients.push(action.payload);
+      state.totalPrice += action.payload.price;
     },
     removeIngredient: (state, action) => {
       const removedIngredient = state.otherIngredients[action.payload];
       state.otherIngredients = state.otherIngredients.filter(
         (_, index) => index !== action.payload,
       );
+      state.totalPrice -= removedIngredient.price;
     },
-    reorderIngredients: (state, action) => {
-      const { oldIndex, newIndex } = action.payload;
-      const [removed] = state.otherIngredients.splice(oldIndex, 1);
-      state.otherIngredients.splice(newIndex, 0, removed);
+    moveIngredient: (state, action) => {
+      const { fromIndex, toIndex } = action.payload;
+      const [removed] = state.otherIngredients.splice(fromIndex, 1);
+      state.otherIngredients.splice(toIndex, 0, removed);
     },
   },
 });
 
-export const { setBun, addIngredient, removeIngredient, reorderIngredients } =
+export const { setBun, addIngredient, removeIngredient, reorderIngredients, moveIngredient } =
   constructorSlice.actions;
 
 export const totalPrice = createSelector(
@@ -57,7 +62,7 @@ export const totalPrice = createSelector(
     const otherIngredients = constructor.otherIngredients;
 
     if (!otherIngredients || !Array.isArray(otherIngredients)) {
-      return 0;
+      return bun && bun.price * 2;
     }
 
     const bunPrice = bun ? bun.price * 2 : 0;

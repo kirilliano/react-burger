@@ -11,4 +11,4 @@ const rootReducer = combineReducers({
   order: orderReducer,
 });
 
-export default rootReducer;
+export { rootReducer };
