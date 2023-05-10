@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   ConstructorElement,
   Button,
@@ -7,59 +7,84 @@ import {
 import styleConstructor from './burger-constructor.module.css';
 import Modal from '../modal/modal';
 import OrderDetails from '../order-details/order-detail';
-import { ConstructorContext } from '../../services/constructorContext.js';
-import burgerReducer from '../../services/burgerReducer.js';
-import controlApiResponse from '../../utils/burger-api.js';
-
-const initialState = {
-  totalPrice: 0,
-};
+import { useSelector, useDispatch } from 'react-redux';
+import { createOrderAsync } from '../../services/orderSlice';
+import {
+  setBun,
+  removeIngredient,
+  totalPrice,
+  moveIngredient,
+  addIngredientWithUuid,
+} from '../../services/constructorSlice';
+import { useDrop, useDrag } from 'react-dnd';
+import { incrementCounter, decrementCounter } from '../../services/ingredientsSlice';
 
 function BurgerConstructor() {
-  const [state, dispatch] = React.useReducer(burgerReducer, initialState);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const { constructorIngredients, orderNumber, setOrderNumber } =
-    React.useContext(ConstructorContext);
+  const dispatch = useDispatch();
+  const currentTotalPrice = useSelector(totalPrice);
+  const orderStatus = useSelector((state) => state.order.status);
+  const orderNumber = useSelector((state) => state.order.orderNumber);
 
-  const bun = constructorIngredients.find((ingredient) => ingredient.type === 'bun');
+  const { otherIngredients } = useSelector((state) => state.constructor);
+  const bun = useSelector((state) => state.constructor.bun);
 
-  React.useEffect(() => {
-    dispatch({ type: 'CALC_TOTAL_PRICE', constructorIngredients });
-  }, [constructorIngredients]);
-
-  function submitOrder() {
-    const ingredientIds = constructorIngredients.map((ingredient) => ingredient._id);
-
-    fetch('https://norma.nomoreparties.space/api/orders', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ingredients: ingredientIds,
-      }),
-    })
-      .then(controlApiResponse)
-      .then((data) => {
-        if (data.success) {
-          setIsModalOpen(true);
-          setOrderNumber(data.order.number);
-        } else {
-          console.log('Что-то пошло не так');
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+  const moveItem = useCallback(
+    (dragIndex, hoverIndex) => {
+      if (dragIndex === hoverIndex) return;
+      dispatch(moveIngredient({ fromIndex: dragIndex, toIndex: hoverIndex }));
+    },
+    [dispatch],
+  );
 
   const handleOrderClick = () => {
-    submitOrder();
+    if (!bun) {
+      alert('Добавьте булку в заказ!');
+      return;
+    }
+    dispatch(
+      createOrderAsync([
+        { ...bun, position: 'top' },
+        ...otherIngredients,
+        { ...bun, position: 'bottom' },
+      ]),
+    );
+    setIsModalOpen(true);
   };
 
+  const handleItemRemove = (index) => {
+    dispatch(removeIngredient(index));
+    const removedIngredient = otherIngredients[index];
+    dispatch(decrementCounter(removedIngredient._id));
+  };
+
+  const [, dropRef] = useDrop({
+    accept: 'ingredient',
+    drop: (item) => {
+      onDrop(item);
+    },
+  });
+
+  const onDrop = useCallback(
+    (item) => {
+      console.log('Item dropped:', item);
+      console.log('Item type:', item.type);
+      if (item.type === 'bun') {
+        dispatch(setBun(item));
+        dispatch(incrementCounter(item._id));
+        if (bun) {
+          dispatch(decrementCounter(bun._id));
+        }
+      } else {
+        dispatch(addIngredientWithUuid(item));
+        dispatch(incrementCounter(item._id));
+      }
+    },
+    [dispatch, bun],
+  );
+
   return (
-    <section className={styleConstructor.list}>
-      {constructorIngredients.length === 0 ? <p>Ваш заказ пуст</p> : null}
+    <section className={styleConstructor.list} ref={dropRef}>
       {bun && (
         <div className={styleConstructor.blockedIngredient}>
           <ConstructorElement
@@ -74,20 +99,16 @@ function BurgerConstructor() {
       )}
 
       <ul className={styleConstructor.includedIngredients}>
-        {constructorIngredients.map((ingredient, index) => {
-          if (ingredient.type !== 'bun') {
-            return (
-              <li key={`${ingredient._id}-${index}`} className={styleConstructor.item}>
-                <div className={styleConstructor.dots}></div>
-                <ConstructorElement
-                  text={ingredient.name}
-                  price={ingredient.price}
-                  thumbnail={ingredient.image}
-                />
-              </li>
-            );
-          }
-          return null;
+        {otherIngredients?.map((ingredient, index) => {
+          return (
+            <DraggableIngredient
+              key={ingredient.uniqueId}
+              index={index}
+              ingredient={ingredient}
+              onRemove={() => handleItemRemove(index)}
+              onMove={moveItem}
+            />
+          );
         })}
       </ul>
 
@@ -106,7 +127,7 @@ function BurgerConstructor() {
 
       <div className={styleConstructor.summary}>
         <div className={styleConstructor.value}>
-          <p className="text text_type_digits-medium">{state.totalPrice}</p>
+          <p className="text text_type_digits-medium">{currentTotalPrice}</p>
           <CurrencyIcon type="primary" />
         </div>
         <Button htmlType="button" type="primary" size="large" onClick={handleOrderClick}>
@@ -114,7 +135,7 @@ function BurgerConstructor() {
         </Button>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && orderStatus === 'succeeded' && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <OrderDetails orderNumber={orderNumber} />
         </Modal>
@@ -124,3 +145,38 @@ function BurgerConstructor() {
 }
 
 export default BurgerConstructor;
+
+function DraggableIngredient({ index, ingredient, onRemove, onMove }) {
+  const [, dragRef] = useDrag({
+    type: 'constructorIngredient',
+    item: { index },
+  });
+
+  const [, dropRef] = useDrop({
+    accept: 'constructorIngredient',
+    hover: (item, monitor) => {
+      if (!monitor.isOver({ shallow: true })) return;
+      const draggedIndex = item.index;
+      if (draggedIndex === index) return;
+      onMove(draggedIndex, index);
+      item.index = index;
+    },
+  });
+
+  const ref = (node) => {
+    dragRef(node);
+    dropRef(node);
+  };
+
+  return (
+    <li ref={ref} className={styleConstructor.item}>
+      <div className={styleConstructor.dots}></div>
+      <ConstructorElement
+        text={ingredient.name}
+        price={ingredient.price}
+        thumbnail={ingredient.image}
+        handleClose={onRemove}
+      />
+    </li>
+  );
+}

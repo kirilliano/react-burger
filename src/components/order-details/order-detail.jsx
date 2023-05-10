@@ -1,6 +1,9 @@
 import styleDetails from '../order-details/order-detail.module.css';
+import { useSelector } from 'react-redux';
 
-function OrderDetails({ orderNumber }) {
+function OrderDetails() {
+  const orderNumber = useSelector((state) => state.order.orderNumber);
+
   return (
     <div className={styleDetails.container}>
       <h2 className={'text text_type_digits-large' + ' ' + styleDetails.number}>{orderNumber}</h2>
